@@ -7,12 +7,12 @@ import {
   Text,
   BackHandler,
   Image,
-  Alert
+  Alert,
 } from 'react-native';
 import {
   Camera,
   useCameraDevices,
-  useCameraDevice
+  useCameraDevice,
 } from 'react-native-vision-camera';
 
 function CameraScreen(props) {
@@ -28,7 +28,7 @@ function CameraScreen(props) {
   const [showCamera, setShowCamera] = useState(false);
   const [imageSource, setImageSource] = useState('');
 
-  // const [isRecording, setIsRecording] = useState(false);
+  const [isRecordingFlag, setIsRecordingFlag] = useState(true);
   const [selectedResolution, setSelectedResolution] = useState(resolutions[0]);
 
   useEffect(() => {
@@ -39,28 +39,27 @@ function CameraScreen(props) {
     getPermission();
   }, []);
 
-
   //Can be used for clicking Photo
-  const handleTakePicture = async () => {
-    if (camera.current !== null) {
-      const options = {
-        quality: 0.5,
-        width: selectedResolution.width,
-        height: selectedResolution.height,
-      };
-      const photo = await camera.current.takePhoto(options);
-      setImageSource(photo.path);
-      setShowCamera(false);
-      // console.log('PHOTO DATA:', photo);
-    }
-  };
+  // const handleTakePicture = async () => {
+  //   if (camera.current !== null) {
+  //     const options = {
+  //       quality: 0.5,
+  //       width: selectedResolution.width,
+  //       height: selectedResolution.height,
+  //     };
+  //     const photo = await camera.current.takePhoto(options);
+  //     setImageSource(photo.path);
+  //     setShowCamera(false);
+  //     // console.log('PHOTO DATA:', photo);
+  //   }
+  // };
 
   /**
    * The `calcVideoSize` function calculates the size of a video based on its duration, resolution, and
    * bitrate, and then logs and alerts the result.
    * @param duration - The `duration` parameter represents the duration of the video in seconds.
    */
-  const calcVideoSize = async (duration) => {
+  const calcVideoSize = async duration => {
     const bitrate = 4000000;
     const videoSizeMB = calculateVideoSize(
       selectedResolution.pixel,
@@ -86,6 +85,7 @@ function CameraScreen(props) {
 
   //Start the video recording
   const startRecording = async () => {
+    setIsRecordingFlag(false);
     camera.current.startRecording({
       videoCodec: 'h265',
       onRecordingFinished: video => {
@@ -97,18 +97,19 @@ function CameraScreen(props) {
 
   //Stop video recording
   const stopRecording = async () => {
+    setIsRecordingFlag(true);
     await camera.current.stopRecording();
   };
 
-  const alertHandler = (data) => {
+  const alertHandler = data => {
     Alert.alert(
       'Hello',
       `Video Size (MB): ${data}`,
       [
         {
           text: 'Ok',
-          onPress: () => console.log('Ok Pressed')
-        }
+          onPress: () => console.log('Ok Pressed'),
+        },
       ],
       {cancelable: false},
       //clicking out side of alert will not cancel
@@ -162,10 +163,13 @@ function CameraScreen(props) {
               style={styles.camButton}
               onPress={() => handleTakePicture()}
             /> */}
-            <TouchableOpacity
-              style={styles.camButton}
-              onPress={() => startRecording()}
-            />
+
+            {isRecordingFlag && (
+              <TouchableOpacity
+                style={styles.camButton}
+                onPress={() => startRecording()}
+              />
+            )}
             <TouchableOpacity
               style={styles.videoButton}
               onPress={() => stopRecording()}
@@ -203,9 +207,7 @@ function CameraScreen(props) {
               <TouchableOpacity
                 style={styles.usephoto}
                 onPress={() => setShowCamera(true)}>
-                <Text style={styles.commonTextStyle}>
-                  Use Photo
-                </Text>
+                <Text style={styles.commonTextStyle}>Use Photo</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -319,7 +321,7 @@ const styles = StyleSheet.create({
     borderColor: '#fff',
     width: 100,
   },
-  commonTextStyle: {color: 'white', fontWeight: '500'}
+  commonTextStyle: {color: 'white', fontWeight: '500'},
 });
 
 export default CameraScreen;
