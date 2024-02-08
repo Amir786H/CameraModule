@@ -17,9 +17,7 @@ import {
 
 function CameraScreen(props) {
   const camera = useRef(null);
-  // const devices = useCameraDevices();
   const devices = useCameraDevice('back');
-  // const device = devices.back;
 
   const resolutions = [
     {width: 640, height: 480, pixel: '480p'},
